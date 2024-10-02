@@ -20,24 +20,24 @@
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-bom</artifactId>
-                <version>3.0.0</version>
+                <version>${jaxb-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.sun.activation</groupId>
                 <artifactId>jakarta.activation</artifactId>
-                <version>2.0.1</version>
+                <version>${jakarta.activation.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.istack</groupId>
                 <artifactId>istack-commons-runtime</artifactId>
-                <version>4.0.1</version>
+                <version>${istack-commons-runtime.version}</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.activation</groupId>
                 <artifactId>jakarta.activation-api</artifactId>
-                <version>2.0.1</version>
+                <version>${jakarta.activation-api.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -66,7 +66,7 @@
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <version>3.0.0</version>
+            <version>${jaxb-runtime.version}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -84,6 +84,20 @@
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -105,13 +119,13 @@
         <dependency>
             <groupId>org.glassfish.grizzly</groupId>
             <artifactId>grizzly-http2</artifactId>
-            <version>3.0.0</version>
+            <version>${grizzly-http2.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.glassfish.grizzly</groupId>
             <artifactId>grizzly-npn-bootstrap</artifactId>
-            <version>2.0.0</version>
+            <version>${grizzly-npn-bootstrap.version}</version>
         </dependency>
 
         <!-- Eclipse Collections -->
@@ -125,7 +139,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
+            <version>${lombok.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -135,20 +149,22 @@
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
-            <version>2.2</version>
+            <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
+            <version>${commons-lang3.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -156,18 +172,18 @@
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.11.2</version>
+            <version>${jjwt.version}</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
             <scope>runtime</scope>
-            <version>0.11.2</version>
+            <version>${jjwt.version}</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
-            <version>0.11.2</version>
+            <version>${jjwt.version}</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
@@ -184,7 +200,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <inherited>true</inherited>
                 <configuration>
                     <source>15</source>
@@ -195,7 +211,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
+                <version>${exec-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -212,7 +228,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M4</version>
+                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>${surefire.jacoco.args}</argLine>
@@ -222,7 +238,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M4</version>
+                <version>${maven-failsafe-plugin.version}</version>
                 <configuration>
                     <!--suppress MavenModelInspection -->
                     <argLine>${failsafe.jacoco.args}</argLine>
@@ -240,7 +256,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.7</version>
+                <version>${jacoco-maven-plugin.version}</version>
                 <executions>
                     <!-- Surefire -->
                     <execution>
@@ -329,7 +345,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0-M3</version>
+                <version>${maven-enforcer-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>enforce-versions</id>
@@ -342,7 +358,7 @@
                                     <version>3.5.4</version>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
-                                    <version>16</version>
+                                    <version>21</version>
                                 </requireJavaVersion>
                                 <DependencyConvergence />
                             </rules>
@@ -355,43 +371,43 @@
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
-                <version>3.7.0.1746</version>
+                <version>${sonar-maven-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>io.github.r0bb3n</groupId>
                 <artifactId>sonar-quality-gate-maven-plugin</artifactId>
-                <version>1.0.2</version>
+                <version>${sonar-quality-gate-maven-plugin.version}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>${maven-clean-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.0.0-M1</version>
+                <version>${maven-deploy-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
-                <version>3.0.0-M1</version>
+                <version>${maven-install-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>${maven-jar-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>${maven-resources-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.9.1</version>
+                <version>${maven-site-plugin.version}</version>
             </plugin>
 
             <!-- Builds a jar that can merge the artifact and its dependencies
@@ -405,7 +421,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.3</version>
+                <version>${maven-shade-plugin.version}</version>
                 <configuration>
                     <createDependencyReducedPom>true</createDependencyReducedPom>
                     <minimizeJar>false</minimizeJar>
@@ -463,7 +479,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>keytool-maven-plugin</artifactId>
-                <version>1.5</version>
+                <version>${keytool-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>generate-resources</phase>
@@ -511,15 +527,65 @@
                 </configuration>
             </plugin>
 
+            <!-- Plugin to check latest stable version of plugins and dependencies -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${mavenversions.version}</version>
+                <configuration>
+                    <!--rulesUri>file:///${project.basedir}/rules.xml</rulesUri-->
+                    <rulesUri>https://bruno.univ-tln.fr/rules.xml</rulesUri>
+                </configuration>
+                <executions>
+                    <!--execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>display-dependency-updates</goal>
+                            <goal>display-plugin-updates</goal>
+                        </goals>
+                    </execution-->
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
+
     <properties>
-        <jersey.version>3.0.1</jersey.version>
-        <jackson.version>2.11.3</jackson.version>
+        <jersey.version>3.1.8</jersey.version>
+        <jackson.version>2.18.0</jackson.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco-merged-coverage-report/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
         <main.class>fr.univtln.bruno.samples.jaxrs.server.BiblioServer</main.class>
+        <lombok.version>1.18.34</lombok.version>
+        <hamcrest.version>3.0</hamcrest.version>
+        <junit.version>5.11.1</junit.version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
+        <jjwt.version>0.12.6</jjwt.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <exec-maven-plugin.version>3.4.1</exec-maven-plugin.version>
+        <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.5.0</maven-failsafe-plugin.version>
+        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+        <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
+        <sonar-quality-gate-maven-plugin.version>1.3.0</sonar-quality-gate-maven-plugin.version>
+        <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
+        <maven-deploy-plugin.version>3.1.3</maven-deploy-plugin.version>
+        <maven-install-plugin.version>3.1.3</maven-install-plugin.version>
+        <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+        <maven-site-plugin.version>3.20.0</maven-site-plugin.version>
+        <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
+        <keytool-maven-plugin.version>1.7</keytool-maven-plugin.version>
+        <mavenversions.version>2.17.1</mavenversions.version>
+        <jaxb-bom.version>4.0.5</jaxb-bom.version>
+        <jakarta.activation.version>2.0.1</jakarta.activation.version>
+        <istack-commons-runtime.version>4.2.0</istack-commons-runtime.version>
+        <jakarta.activation-api.version>2.1.3</jakarta.activation-api.version>
+        <grizzly-http2.version>4.0.2</grizzly-http2.version>
+        <grizzly-npn-bootstrap.version>2.0.0</grizzly-npn-bootstrap.version>
+        <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
     </properties>
 </project>

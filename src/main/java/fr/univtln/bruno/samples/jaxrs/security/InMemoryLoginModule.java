@@ -1,20 +1,19 @@
 package fr.univtln.bruno.samples.jaxrs.security;
 
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.Jwts;
 import lombok.AccessLevel;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.java.Log;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 /**
- * this class model a simple in memory role based authentication database (RBAC).
- * Password are salted and hashed.
+ * this class model a simple in memory-role-based authentication database (RBAC).
+ * Passwords are salted and hashed.
  */
 @Log
 @ToString
@@ -29,7 +28,7 @@ public class InMemoryLoginModule {
      * The constant KEY is used as a signing key for the bearer JWT token.
      * It is used to check that the token hasn't been modified.
      */
-    public static final Key KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    public static final SecretKey KEY = Jwts.SIG.HS256.key().build();
 
     //We add three demo users.
     static {
@@ -110,7 +109,8 @@ public class InMemoryLoginModule {
      * @return the user roles
      */
     public Set<Role> getUserRoles(String email) {
-        return users.get(email).getRoles();
+        User user = users.get(email);
+        return user==null?EnumSet.of(Role.GUEST):user.getRoles();
     }
 
     @SuppressWarnings("SameReturnValue")

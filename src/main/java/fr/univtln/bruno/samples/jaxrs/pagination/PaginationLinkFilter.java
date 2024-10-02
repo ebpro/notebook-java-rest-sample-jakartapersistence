@@ -31,7 +31,7 @@ public class PaginationLinkFilter implements ContainerResponseFilter {
     public void filter(ContainerRequestContext requestContext,
                        ContainerResponseContext responseContext) {
 
-        //If the entity in the response is not a Page we stop here
+        //If the entity in the response is not a Page, we stop here
         if (!(responseContext.getEntity() instanceof Page)) {
             return;
         }
@@ -76,7 +76,7 @@ public class PaginationLinkFilter implements ContainerResponseFilter {
         }
 
         if (!linksList.isEmpty())
-            responseContext.getHeaders().add("Link", linksList.stream().map(l -> l.toString()).collect(Collectors.joining(",")));
+            responseContext.getHeaders().add("Link", linksList.stream().map(Link::toString).collect(Collectors.joining(",")));
         //We add pagination metadata in the header
         responseContext.getHeaders().add(JAXRS_SAMPLE_TOTAL_COUNT, entity.getElementTotal());
         responseContext.getHeaders().add(JAXRS_SAMPLE_PAGE_COUNT, entity.getPageTotal());

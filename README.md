@@ -1,92 +1,57 @@
-# A not so simple JAX-RS example
+# A Not So Simple JAX-RS Example
+
+## Project Description
+
+This project is a sample JAX-RS application demonstrating a library management system. It includes features for managing authors and books, with support for sorting, filtering, and pagination.
+
+## Prerequisites
+
+- Java 21 or higher
+- Git
+
+## Installation
+
+1. Clone the repository:
+    ```shell
+    git clone https://github.com/ebpro/cours-java-librarymanager-rest.git
+    cd cours-java-librarymanager-rest
+    ```
+
+2. Compile, package, and run integration tests:
+    ```shell
+    ./mvnw clean verify
+    ```
+
+3. Launch the REST server:
+    ```shell
+    ./mvnw exec:java
+    ```
 
 ## Usage
 
-See a complete set of samples [here](queries/sample-requests.rest)
+### Get a Hello Message
 
-Compile, package, and run Integration Tests (verify). Launch the REST Server.
-```shell
-git clone \
-  https://github.com/emmanuelbruno/cours-java-librarymanager-rest.git
-mvn clean verify && \
-  mvn exec:java
-```
-
-Get a Hello message
+To get a hello message, run the following command:
 ```shell
 curl -s -D - http://localhost:9998/myapp/biblio
 ```
 
-Init the database with two authors
-```shell
-curl -s -D - -X PUT "http://localhost:9998/myapp/biblio/init"
-```
+### Sample Requests
 
-Get author 1 in JSON
-```shell
-curl -s -D - -H "Accept: application/json"  \
-  http://localhost:9998/myapp/biblio/authors/1
-```
+See a complete set of sample requests [here](queries/sample-requests.rest).
 
-Get author 2 in XML
-```shell
-curl -s -D - -H "Accept: text/xml"  \
-  http://localhost:9998/myapp/biblio/authors/2
-```
+## Contributing
 
-Get authors in JSON
-```shell
-curl -s -D - -H "Accept: application/json"  \
-  http://localhost:9998/myapp/biblio/authors
-```
+Contributions are welcome! Please follow these steps:
 
-Removes an author
-```shell
-curl -s -D - -X DELETE "http://localhost:9998/myapp/biblio/authors/1"
-```
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes.
+4. Commit your changes (`git commit -m 'Add some feature'`).
+5. Push to the branch (`git push origin feature-branch`).
+6. Open a pull request.
 
-Removes all authors
-```shell
-curl -s -D - -X DELETE "http://localhost:9998/myapp/biblio/authors"
-```
+## License
 
-Adds an author
-```shell
-curl -s -D - -H "Accept: application/json"  \
-  -H "Content-type: application/json"  \
-  -X POST \
-  -d '{"nom":"John","prenom":"Smith","biographie":"My life"}' \
-  "http://localhost:9998/myapp/biblio/authors/"
-```
-
-Fully update an author
-```shell
-curl -s -D - -H "Accept: application/json"  \
-  -H "Content-type: application/json"  \
-  -X PUT \
-  -d '{"nom":"Martin","prenom":"Jean","biographie":"ma vie"}' \
-  "http://localhost:9998/myapp/biblio/authors/1"
-```
-
-If a resource doesn't exist an exception is raised, and the 404 http status code is returned
-```shell
-curl -s -D - -H "Accept: application/json"  \
-  http://localhost:9998/myapp/biblio/authors/1000
-```
-
-Filter resources with query parameters :
-```shell
-curl -v -H "Accept: application/json"  \
- "http://127.0.0.1:9998/myapp/biblio/authors/filter?nom=Durand&prenom⁼Marie"
-```
-
-Control sort key with header param (default value "nom") :
-```shell
-curl -v -H "Accept: application/json"  -H "sortKey: prenom"\
-"http://127.0.0.1:9998/myapp/biblio/authors/filter"
-```
-Login and get a Java Web Token
-```shell
-TOKEN=$(curl -v --user "john.doe@nowhere.com:admin" "http://localhost:9998/myapp/biblio/login")
-curl -H "Authorization: Bearer $TOKEN" -v "http://localhost:9998/myapp/biblio/secured
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 ```

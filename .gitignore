@@ -36,3 +36,5 @@ proguard/
 *.ear
 
 src/main/resources/ssl/*
+dependency-reduced-pom.xml
+pom.xml.versionsBackup

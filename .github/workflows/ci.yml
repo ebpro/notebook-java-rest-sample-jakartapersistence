@@ -1,55 +1,21 @@
-## A simple example to use  Github Actions for Java CI
-## This produces a simple jar artefact are store in the github maven repository
-# We build the project using maven.
-# The credential ae set in a specific settings.xml using env variables
-# The ENV variables are stored as Github Secrets
-#
-# The secrets are set in CLI with https://www.npmjs.com/package/gh-create-update-secret
-#
-#  ghrepo=`git remote -v|grep fetch|sed 's/.*:\(.*\).git/\1/'`
-#  export GH_PAT=$GITHUB_PASSWORD
-#  gh-create-update-secret --secret GITHUBLOGIN 		--value $GITHUB_LOGIN --repo $ghrepo
-#  gh-create-update-secret --secret GITHUBPASSWORD 	--value $GITHUB_PASSWORD --repo $ghrepo
+name: CI Java (Host)
 
-#  gh-create-update-secret --secret DOCKER_USERNAME  	--value $DOCKER_USERNAME --repo $ghrepo
-#  gh-create-update-secret --secret DOCKER_PASSWORD  	--value $DOCKER_PASSWORD --repo $ghrepo
-
-#  gh-create-update-secret --secret SONAR_TOKEN 		--value $SONAR_TOKEN --repo $ghrepo
-name: Java CI
-
-# on every push
-on: [push]
-
-env:
-  GITHUBLOGIN: ${{secrets.GITHUBLOGIN}}
-  GITHUBPASSWORD: ${{secrets.GITHUBPASSWORD}}
-  DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
-  DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-  SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "!**"
+  workflow_dispatch:
 
 jobs:
-  # This job build, test, package and deploy the artefact
-  maven-build:
-    # The tags on the runner
-    runs-on: [self-hosted, Linux]
-
-    steps:
-      #we get the content of the repository
-      - uses: actions/checkout@v2
-
-      # build the project in a docker container with a specific maven settings.xml
-      # it uses env variables from github secrets for the credentials
-      # to github, dockerhub and sonar.
-      - name: Build and test with Maven in docker
-        run: ./mvn.sh clean verify
-
-  # This job runs a sonarqube analysis on the hosted runner
-  # only on develop branch
-  maven-sonar:
-    runs-on: [self-hosted, Linux]
-    needs: maven-build
-    # Develop branch only
-    # if: github.ref == 'refs/heads/develop'
-    steps:
-      - name: Launch a sonar analysis
-        run: ./mvn.sh -D sonar.branch.name=${GITHUB_REF#refs/heads/} --activate-profiles sonar sonar:sonar && mvn --activate-profiles sonar -pl . sonar-quality-gate:check
+  build:
+    name: build-sonar-site-upload
+    uses: ebpro/gh-actions-shared-java/.github/workflows/ci-shareable-maven.yml@develop
+    secrets: inherit
+    with:
+      runs-on: arc-runner-set-compute-lsis
+      quality-goal-run: "true"
+      deploy-goal-run: "true"
+      site-goal-run: "true"
+      site-goal-branch: "master"

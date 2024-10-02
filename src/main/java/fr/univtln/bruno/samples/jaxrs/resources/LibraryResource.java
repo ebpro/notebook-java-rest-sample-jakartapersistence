@@ -82,7 +82,7 @@ public class LibraryResource {
      * A random string generator
      *
      * @param targetStringLength the length of the String
-     * @return
+     * @return a random String of the given length
      */
     private String randomString(int targetStringLength) {
         int letterA = 97;

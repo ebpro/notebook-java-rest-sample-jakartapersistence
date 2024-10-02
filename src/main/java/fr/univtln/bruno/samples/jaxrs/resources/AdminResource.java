@@ -134,14 +134,16 @@ public class AdminResource {
         if (securityContext.isSecure() && securityContext.getUserPrincipal() instanceof User) {
             User user = (User) securityContext.getUserPrincipal();
             return Jwts.builder()
-                    .setIssuer("sample-jaxrs")
-                    .setIssuedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
-                    .setSubject(user.getEmail())
+                    .issuer("sample-jaxrs")
+                    .issuedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
+                    .subject(user.getEmail())
                     .claim("firstname", user.getFirstName())
                     .claim("lastname", user.getLastName())
                     .claim("roles", user.getRoles())
-                    .setExpiration(Date.from(LocalDateTime.now().plus(15, ChronoUnit.MINUTES).atZone(ZoneId.systemDefault()).toInstant()))
-                    .signWith(InMemoryLoginModule.KEY).compact();
+                    .expiration(Date.from(LocalDateTime.now().plusMinutes(15).atZone(ZoneId.systemDefault()).toInstant()))
+                    .notBefore(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
+                    .signWith(InMemoryLoginModule.KEY)
+                    .compact();
         }
         throw new WebApplicationException(new AuthenticationException());
     }

@@ -1,14 +1,11 @@
 package fr.univtln.bruno.samples.jaxrs;
 
 import fr.univtln.bruno.samples.jaxrs.model.Library;
-import fr.univtln.bruno.samples.jaxrs.model.Library.Author;
 import fr.univtln.bruno.samples.jaxrs.security.InMemoryLoginModule;
 import fr.univtln.bruno.samples.jaxrs.server.BiblioServer;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -16,22 +13,23 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.extern.java.Log;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.message.internal.MediaTypes;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * A simple junit integration test for A REST service.
  */
+@Log
 public class ServerIT {
     private static HttpServer httpServer;
 
@@ -40,7 +38,7 @@ public class ServerIT {
     /**
      * Starts the application before the tests.
      */
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         //start the Grizzly2 web container
         httpServer = BiblioServer.startServer();
@@ -52,15 +50,15 @@ public class ServerIT {
     /**
      * Stops the application at the end of the test.
      */
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         httpServer.shutdown();
     }
 
     /**
-     * Adds two authors before each tests.
+     * Adds two authors before each test.
      */
-    @Before
+    @BeforeEach
     public void beforeEach() {
         webTarget.path("library/init").request().put(Entity.entity("", MediaType.TEXT_PLAIN));
     }
@@ -68,13 +66,13 @@ public class ServerIT {
     /**
      * Clears the data after each tests.
      */
-    @After
+    @AfterEach
     public void afterEach() {
         webTarget.path("authors").request().delete();
     }
 
     @Test
-    public void testHello() {
+    void testHello() {
         String hello = webTarget.path("library/hello").request(MediaType.TEXT_PLAIN).get(String.class);
         assertEquals("hello", hello);
     }
@@ -83,7 +81,7 @@ public class ServerIT {
      * Tests to get a author by id in JSON.
      */
     @Test
-    public void testGetAuteurJSON() {
+    void testGetAuteurJSON() {
         Library.Author responseAuthor = webTarget.path("authors/1").request(MediaType.APPLICATION_JSON).get(Library.Author.class);
         assertNotNull(responseAuthor);
         assertEquals("Alfred", responseAuthor.getFirstname());
@@ -94,7 +92,7 @@ public class ServerIT {
      * Tests to get a author by id in XML.
      */
     @Test
-    public void testGetAuteurXML() {
+    void testGetAuteurXML() {
         Library.Author responseAuthor = webTarget.path("authors/1").request(MediaType.TEXT_XML).get(Library.Author.class);
         assertNotNull(responseAuthor);
         assertEquals("Alfred", responseAuthor.getFirstname());
@@ -105,7 +103,7 @@ public class ServerIT {
      * Tests to get a author by id in JSON.
      */
     @Test
-    public void testGetAuteurJSONNotFoundException() {
+    void testGetAuteurJSONNotFoundException() {
         Response response = webTarget.path("authors/10").request(MediaType.APPLICATION_JSON).get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
@@ -114,7 +112,7 @@ public class ServerIT {
      * Tests to get a collection of authors in JSON.
      */
     @Test
-    public void testGetAuteurs() {
+    void testGetAuteurs() {
         Collection<Library.Author> responseAuthors = webTarget.path("authors").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
         });
         assertEquals(2, responseAuthors.size());
@@ -124,7 +122,7 @@ public class ServerIT {
      * Tests to clear authors.
      */
     @Test
-    public void deleteAuteurs() {
+    void deleteAuteurs() {
         webTarget.path("authors").request().delete();
         Collection<Library.Author> responseAuthors = webTarget.path("authors").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
         });
@@ -135,7 +133,7 @@ public class ServerIT {
      * Tests to delete an author.
      */
     @Test
-    public void deleteAuteur() {
+    void deleteAuteur() {
         webTarget.path("authors/1").request().delete();
         Collection<Library.Author> responseAuthors = webTarget.path("authors").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
         });
@@ -148,12 +146,12 @@ public class ServerIT {
      * Tests to add an author in JSON.
      */
     @Test
-    public void addAuteur() {
+    void addAuteur() {
         webTarget.path("authors")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .post(Entity.entity("{\"name\":\"Smith\",\"firstname\":\"John\",\"biography\":\"My life\"}", MediaType.APPLICATION_JSON));
-        Collection<Author> responseAuthors = webTarget.path("authors").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
+        Collection<Library.Author> responseAuthors = webTarget.path("authors").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
         });
         assertEquals(3, responseAuthors.size());
         Library.Author responseAuthor = webTarget.path("authors/3").request(MediaType.APPLICATION_JSON).get(Library.Author.class);
@@ -167,12 +165,13 @@ public class ServerIT {
      * Tests update an author in JSON.
      */
     @Test
-    public void updateAuteur() {
+    void updateAuteur() {
         webTarget.path("authors/1")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .put(Entity.entity("{\"name\":\"Doe\",\"firstname\":\"Jim\",\"biography\":\"My weird life\"}", MediaType.APPLICATION_JSON));
-        Author responseAuthor = webTarget.path("authors/1").request(MediaType.APPLICATION_JSON).get(Library.Author.class);
+                .put(Entity.entity("""
+                        {"name":"Doe","firstname":"Jim","biography":"My weird life"}""", MediaType.APPLICATION_JSON));
+        Library.Author responseAuthor = webTarget.path("authors/1").request(MediaType.APPLICATION_JSON).get(Library.Author.class);
         assertNotNull(responseAuthor);
         assertEquals("Jim", responseAuthor.getFirstname());
         assertEquals("Doe", responseAuthor.getName());
@@ -183,7 +182,7 @@ public class ServerIT {
      * Tests update an author in JSON.
      */
     @Test
-    public void updateAuteurIllegalArgument() {
+    void updateAuteurIllegalArgument() {
         Response response = webTarget.path("authors/1")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -197,7 +196,7 @@ public class ServerIT {
      * "application.wadl".
      */
     @Test
-    public void testApplicationWadl() {
+    void testApplicationWadl() {
         String serviceWadl = webTarget.path("application.wadl")
                 .request(MediaTypes.WADL_TYPE)
                 .get(String.class);
@@ -208,7 +207,7 @@ public class ServerIT {
      * Tests filters and query param.
      */
     @Test
-    public void filter() {
+    void filter() {
         List<Library.Author> authors = webTarget.path("authors/filter")
                 .queryParam("firstname","Marie")
                 .request(MediaType.APPLICATION_JSON)
@@ -219,7 +218,7 @@ public class ServerIT {
     }
 
     @Test
-    public void refusedLogin() {
+    void refusedLogin() {
         Response result = webTarget.path("setup/login")
                 .request()
                 .get();
@@ -227,7 +226,7 @@ public class ServerIT {
     }
 
     @Test
-    public void acceptedLogin() {
+    void acceptedLogin() {
         String email="john.doe@nowhere.com";
         String password="admin";
         Response result = webTarget.path("setup/login")
@@ -238,15 +237,15 @@ public class ServerIT {
 
         String entity = result.readEntity(String.class);
         assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
-        Jws<Claims> jws = Jwts.parserBuilder()
-                .setSigningKey(InMemoryLoginModule.KEY)
+        Jws<Claims> jws = Jwts.parser()
+                .verifyWith(InMemoryLoginModule.KEY)
                 .build()
-                .parseClaimsJws(entity);
-        assertEquals(email,jws.getBody().getSubject());
+                .parseSignedClaims(entity);
+        assertEquals(email,jws.getPayload().getSubject());
     }
 
     @Test
-    public void jwtAccess() {
+    void jwtAccess() {
         //Log in to get the token
         String email="john.doe@nowhere.com";
         String password="admin";
@@ -266,22 +265,24 @@ public class ServerIT {
     }
 
     @Test
-    public void jwtAccessDenied() {
+    void jwtAccessDenied() {
         String forgedToken = Jwts.builder()
-                .setIssuer("sample-jaxrs")
-                .setIssuedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
-                .setSubject("john.doe@nowhere.com")
+                .issuer("sample-jaxrs")
+                .issuedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
+                .subject("john.doe@nowhere.com")
                 .claim("firstname", "John")
                 .claim("lastname", "Doe")
-                .setExpiration(Date.from(LocalDateTime.now().plus(15, ChronoUnit.MINUTES).atZone(ZoneId.systemDefault()).toInstant()))
+                .expiration(Date.from(LocalDateTime.now().plusMinutes(15).atZone(ZoneId.systemDefault()).toInstant()))
                 //A RANDOM KEY DIFFERENT FROM THE SERVER
-                .signWith( Keys.secretKeyFor(SignatureAlgorithm.HS256)).compact();
+                .signWith( Jwts.SIG.HS256.key().build()).compact();
+
 
         //We access a JWT protected URL with the token
         Response result = webTarget.path("setup/secured")
                 .request()
                 .header( "Authorization",  "Bearer "+forgedToken)
                 .get();
+        log.info("Status: %d".formatted(result.getStatus()));
         assertNotEquals(Response.Status.OK.getStatusCode(), result.getStatus());
     }
 
