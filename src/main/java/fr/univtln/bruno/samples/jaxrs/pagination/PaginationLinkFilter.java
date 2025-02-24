@@ -15,70 +15,89 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Filter that handles pagination metadata and HATEOAS links for REST responses.
+ * Implements RFC 5988 Web Linking standard.
+ */
 @Provider
 @Log
 public class PaginationLinkFilter implements ContainerResponseFilter {
-    public static final String JAXRS_SAMPLE_TOTAL_COUNT = "JAXRS_Sample-Total-Count";
-    public static final String JAXRS_SAMPLE_PAGE_COUNT = "JAXRS_Sample-Page-Count";
-    public static final String PREV_REL = "previous";
-    public static final String NEXT_REL = "next";
-    public static final String FIRST_REL = "first";
-    public static final String LAST_REL = "last";
-    public static final String PAGE_QUERY_PARAM = "page";
-    public static final int FIRST_PAGE = 1;
+    private static final String JAXRS_SAMPLE_TOTAL_COUNT = "X-Total-Count";
+    private static final String JAXRS_SAMPLE_PAGE_COUNT = "X-Page-Count";
+    private static final String PREV_REL = "prev";
+    private static final String NEXT_REL = "next";
+    private static final String FIRST_REL = "first";
+    private static final String LAST_REL = "last";
+    private static final String PAGE_QUERY_PARAM = "page";
+    private static final int FIRST_PAGE = 1;
 
     @Override
     public void filter(ContainerRequestContext requestContext,
-                       ContainerResponseContext responseContext) {
-
-        //If the entity in the response is not a Page, we stop here
-        if (!(responseContext.getEntity() instanceof Page)) {
+                      ContainerResponseContext responseContext) {
+        if (!isPageResponse(responseContext)) {
             return;
         }
 
-        UriInfo uriInfo = requestContext.getUriInfo();
-        Page entity = (Page) responseContext.getEntity();
+        Page<?> entity = (Page<?>) responseContext.getEntity();
+        validatePageNumber(entity);
 
-        if (entity.getPageNumber() > entity.getPageTotal())
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-
-        //We replace the entity by the content of the page (we remove the envelope).
         responseContext.setEntity(entity.getContent());
+        addPaginationHeaders(responseContext, entity);
+        addNavigationLinks(requestContext.getUriInfo(), responseContext, entity);
+    }
 
-        List<Link> linksList = new ArrayList<>();
+    private boolean isPageResponse(ContainerResponseContext responseContext) {
+        return responseContext.getEntity() instanceof Page;
+    }
 
-        //We add the need semantic links in the header
-        //Not on the first page
-        if (entity.getPageNumber() > FIRST_PAGE) {
-            linksList.add(Link.fromUriBuilder(uriInfo.getRequestUriBuilder()
-                    .replaceQueryParam(PAGE_QUERY_PARAM,
-                            entity.getPageNumber() - 1))
-                    .rel(PREV_REL)
-                    .build());
-            linksList.add(Link.fromUriBuilder(uriInfo.getRequestUriBuilder()
-                    .replaceQueryParam(PAGE_QUERY_PARAM,
-                            1))
-                    .rel(FIRST_REL)
-                    .build());
+    private void validatePageNumber(Page<?> entity) {
+        if (entity.getPageNumber() > entity.getPageTotal()) {
+            throw new WebApplicationException(
+                String.format("Page %d exceeds total pages %d", 
+                    entity.getPageNumber(), entity.getPageTotal()),
+                Response.Status.NOT_FOUND);
         }
-        //Not on the last
-        if (entity.getPageNumber() < entity.getPageTotal()) {
-            linksList.add(Link.fromUriBuilder(uriInfo.getRequestUriBuilder()
-                    .replaceQueryParam(PAGE_QUERY_PARAM,
-                            entity.getPageNumber() + 1))
-                    .rel(NEXT_REL)
-                    .build());
-            linksList.add(Link.fromUriBuilder(uriInfo.getRequestUriBuilder()
-                    .replaceQueryParam(PAGE_QUERY_PARAM,
-                            entity.getPageTotal()))
-                    .rel(LAST_REL)
-                    .build());
-        }
+    }
 
-        if (!linksList.isEmpty())
-            responseContext.getHeaders().add("Link", linksList.stream().map(Link::toString).collect(Collectors.joining(",")));
-        //We add pagination metadata in the header
+    private void addPaginationHeaders(ContainerResponseContext responseContext, Page<?> entity) {
         responseContext.getHeaders().add(JAXRS_SAMPLE_TOTAL_COUNT, entity.getElementTotal());
         responseContext.getHeaders().add(JAXRS_SAMPLE_PAGE_COUNT, entity.getPageTotal());
+    }
+
+    private void addNavigationLinks(UriInfo uriInfo, 
+                                  ContainerResponseContext responseContext, 
+                                  Page<?> entity) {
+        List<Link> links = new ArrayList<>();
+
+        addPreviousAndFirstLinks(links, uriInfo, entity);
+        addNextAndLastLinks(links, uriInfo, entity);
+
+        if (!links.isEmpty()) {
+            responseContext.getHeaders().add("Link", 
+                links.stream()
+                    .map(Link::toString)
+                    .collect(Collectors.joining(", ")));
+        }
+    }
+
+    private void addPreviousAndFirstLinks(List<Link> links, UriInfo uriInfo, Page<?> entity) {
+        if (entity.getPageNumber() > FIRST_PAGE) {
+            links.add(createLink(uriInfo, PREV_REL, entity.getPageNumber() - 1));
+            links.add(createLink(uriInfo, FIRST_REL, FIRST_PAGE));
+        }
+    }
+
+    private void addNextAndLastLinks(List<Link> links, UriInfo uriInfo, Page<?> entity) {
+        if (entity.getPageNumber() < entity.getPageNumber()) {
+            links.add(createLink(uriInfo, NEXT_REL, entity.getPageNumber() + 1));
+            links.add(createLink(uriInfo, LAST_REL, entity.getPageTotal()));
+        }
+    }
+
+    private Link createLink(UriInfo uriInfo, String rel, long pageNumber) {
+        return Link.fromUriBuilder(uriInfo.getRequestUriBuilder()
+                .replaceQueryParam(PAGE_QUERY_PARAM, pageNumber))
+                .rel(rel)
+                .build();
     }
 }
