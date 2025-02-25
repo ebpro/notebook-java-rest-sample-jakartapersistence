@@ -7,10 +7,12 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.GenericType;
 import lombok.extern.java.Log;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.List;
 
 /**
  * REST Client for the Library API.
@@ -66,14 +68,14 @@ public class BiblioClient {
     /**
      * Fetches all authors from the library.
      * @param webResource the web target for the API
-     * @return JSON string containing author data
+     * @return List of Author objects
      */
-    private static String fetchAuthors(WebTarget webResource) {
-        String response = webResource.path("authors")
+    private static List<Library.Author> fetchAuthors(WebTarget webResource) {
+        List<Library.Author> authors = webResource.path("authors")
                 .request()
-                .get(String.class);
-        log.info("Authors: " + response);
-        return response;
+                .get(new GenericType<List<Library.Author>>(){});
+        log.info("Authors: " + authors);
+        return authors;
     }
 
     /**
