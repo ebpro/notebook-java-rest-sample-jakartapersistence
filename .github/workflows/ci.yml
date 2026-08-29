@@ -14,7 +14,7 @@ jobs:
     uses: ebpro/gh-actions-shared-java/.github/workflows/ci-shareable-maven.yml@develop
     secrets: inherit
     with:
-      runs-on: arc-runner-set-compute-lsis
+      runs-on: ebpro-org
       quality-goal-run: "true"
       deploy-goal-run: "true"
       site-goal-run: "true"
